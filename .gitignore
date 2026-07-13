@@ -1,0 +1,21 @@
+# Secretos y configuracion local
+**/.env
+**/.env.*
+!**/.env.example
+
+# Artefactos de compilacion y dependencias
+**/target/
+**/node_modules/
+**/dist/
+
+# Metadatos locales de proveedores
+**/.vercel/
+
+# Credenciales y certificados
+**/*.key
+**/*.pem
+**/*.p12
+**/*.jks
+**/*.pfx
+**/private/
+**/secrets/

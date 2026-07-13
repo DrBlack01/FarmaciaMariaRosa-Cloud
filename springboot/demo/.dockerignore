@@ -1,40 +1,29 @@
-# .dockerignore - Farmacia María Rosa Backend
-# Excluye archivos innecesarios del contexto de construcción Docker
-
-# Control de versiones
 .git
 .gitignore
 .gitattributes
-
-# IDEs
+.env
+.env.*
+!.env.example
+target/
+*.log
+logs/
 .idea
 .vscode
 *.iml
 *.iws
 *.ipr
-
-# Salida Maven (se regenera en el build)
-target/
-
-# Archivos de entorno (NUNCA incluir credenciales en la imagen)
-.env
-*.env
-.env.*
-
-# Logs
-*.log
-logs/
-
-# Archivos del sistema operativo
+*.key
+*.pem
+*.p12
+*.jks
+*.pfx
+private
+secrets
 .DS_Store
 Thumbs.db
 desktop.ini
-
-# Archivos temporales
 *.tmp
 *.swp
 *~
-
-# Documentación (no necesaria en la imagen)
 *.md
 docs/

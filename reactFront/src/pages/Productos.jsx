@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../hooks/useAuth";
-
-const API_BASE = "/api";
+import { API_BASE } from "../config/api";
 
 // OBTENER TOKEN REAL DEL localStorage 
 const getToken = () => localStorage.getItem("jwtToken");

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_BASE } from '../config/api';
 
 const Contacto = () => {
   const [formData, setFormData] = useState({
@@ -27,7 +28,7 @@ const Contacto = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/contacto', {
+      const response = await fetch(`${API_BASE}/contacto`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

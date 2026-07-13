@@ -31,75 +31,42 @@ git push -u origin main
 
 ## 2. PostgreSQL en Render
 
-### 2.1 Crear base de datos PostgreSQL
-1. Iniciar sesión en https://render.com
-2. Dashboard → **New** → **PostgreSQL**
-3. Configurar:
-   - **Name**: `farmacia-maria-rosa-db`
-   - **Database**: `farmacia_maria_rosa`
-   - **User**: `farmacia_admin`
-   - **Plan**: Free
-4. Clic en **Create Database**
+El archivo `render.yaml` crea `farmacia-maria-rosa-db` y enlaza internamente host,
+puerto, base, usuario y contraseña con el backend. No copies ni publiques credenciales.
 
-### 2.2 Obtener credenciales
-Una vez creada, en la sección **Info**, copiar:
-- **Internal Database URL** → para usar desde el mismo Render
-- **External Database URL** → para herramientas externas (pgAdmin, etc.)
-
-### 2.3 Construir la URL JDBC
-La URL JDBC tiene el formato:
-```
-jdbc:postgresql://HOST:PORT/DB_NAME?sslmode=require
-```
-
-Ejemplo (reemplazar con los valores reales de Render):
-```
-jdbc:postgresql://dpg-xxxxxxxx.oregon-postgres.render.com:5432/farmacia_maria_rosa?sslmode=require
-```
-
-> ⚠️ **IMPORTANTE**: Añadir siempre `?sslmode=require` al final. Render requiere SSL.
+> ⚠️ El plan Free de PostgreSQL en Render expira a los 30 días y no incluye backups.
 
 ---
 
 ## 3. Backend Spring Boot en Render
 
-### 3.1 Crear servicio web
-1. Dashboard → **New** → **Web Service**
-2. Conectar el repositorio `FarmaciaMariaRosa-Cloud`
-3. Configurar:
-   - **Name**: `farmacia-maria-rosa-backend`
-   - **Root Directory**: `springboot/demo`
-   - **Environment**: **Docker** (detecta automáticamente el Dockerfile)
-   - **Plan**: Free
+### 3.1 Crear el Blueprint
+1. Dashboard → **New** → **Blueprint**.
+2. Conectar el repositorio `FarmaciaMariaRosa-Cloud`.
+3. Render detectará `render.yaml` y creará el backend Docker y PostgreSQL.
 
 ### 3.2 Variables de entorno
-En **Environment** → **Add Environment Variable**:
+Durante la creación inicial del Blueprint, Render solicitará únicamente las variables
+marcadas con `sync: false`:
 
 | Variable | Valor | Secreto |
 |---|---|---|
 | `SPRING_PROFILES_ACTIVE` | `prod` | No |
-| `DB_URL` | `jdbc:postgresql://HOST:PORT/DB?sslmode=require` | No |
-| `DB_USERNAME` | (usuario de Render) | No |
-| `DB_PASSWORD` | (contraseña de Render) | **Sí** |
+| `DB_HOST`, `DB_PORT`, `DB_NAME` | Enlace automático a PostgreSQL | No |
+| `DB_USERNAME`, `DB_PASSWORD` | Enlace automático a PostgreSQL | **Automático** |
 | `DDL_AUTO` | `update` | No |
 | `SHOW_SQL` | `false` | No |
-| `JWT_SECRET` | (clave BASE64 de 64+ chars) | **Sí** |
+| `JWT_SECRET` | Generada automáticamente por Render | **Sí** |
 | `FRONTEND_URL` | `https://farmacia-maria-rosa.vercel.app` | No |
 | `ADMIN_EMAIL` | `admin@farmacia.com` | No |
 | `ADMIN_PASSWORD` | (contraseña segura) | **Sí** |
 | `CREATE_DEFAULT_ADMIN` | `true` | No |
 | `GROQ_API_KEY` | (tu API key de Groq) | **Sí** |
 
-> ⚠️ **Las variables marcadas como Secreto deben marcarse como "Secret" en Render para que no aparezcan en los logs.**
+> ⚠️ No copies a archivos ni logs los valores de `ADMIN_PASSWORD` o `GROQ_API_KEY`.
 
-### 3.3 Generar JWT_SECRET seguro
-```bash
-# Linux/Mac:
-openssl rand -base64 64
-
-# PowerShell:
-[Convert]::ToBase64String((1..64 | ForEach-Object { Get-Random -Maximum 256 }))
-```
+### 3.3 JWT_SECRET
+El Blueprint usa `generateValue: true`; Render crea y conserva el secreto sin publicarlo.
 
 ### 3.4 Health Check
 - **Path**: `/api/health`
@@ -222,7 +189,7 @@ AdminInitializer: El administrador 'admin@farmacia.com' ya existe. No se duplica
 En Render Dashboard → tu servicio → **Logs**:
 - Buscar `Started DemoApplication` → backend iniciado
 - Buscar `AdminInitializer` → estado del admin
-- Buscar errores de conexión DB → revisar DB_URL y SSL
+- Buscar errores de conexión DB → revisar los enlaces `DB_HOST`, `DB_PORT` y `DB_NAME`
 - Buscar errores CORS → revisar FRONTEND_URL
 
 ---
@@ -231,7 +198,7 @@ En Render Dashboard → tu servicio → **Logs**:
 
 | Error | Causa probable | Solución |
 |---|---|---|
-| `Connection refused` al DB | URL JDBC incorrecta | Verificar DB_URL con `?sslmode=require` |
+| `Connection refused` al DB | Enlace de PostgreSQL incorrecto | Verificar variables `DB_HOST`, `DB_PORT` y `DB_NAME` |
 | `401 Unauthorized` | JWT_SECRET diferente entre deployments | Usar siempre el mismo JWT_SECRET |
 | CORS error | FRONTEND_URL incorrecto | Actualizar FRONTEND_URL en Render |
 | Admin no se crea | BD no disponible al iniciar | Verificar que la BD esté Running antes del backend |
@@ -247,17 +214,16 @@ En Render Dashboard → tu servicio → **Logs**:
 |---|---|---|---|---|
 | `SPRING_PROFILES_ACTIVE` | Render (backend) | ✅ | `prod` | Perfil de Spring Boot |
 | `PORT` | Render (auto) | ✅ | `10000` | Puerto asignado por Render |
-| `DB_URL` | Render (backend) | ✅ | `jdbc:postgresql://host:5432/db?sslmode=require` | URL JDBC completa |
-| `DB_USERNAME` | Render (backend) | ✅ | `farmacia_admin` | Usuario PostgreSQL |
-| `DB_PASSWORD` | Render (backend) | ✅ | `Secr3t!Pass` | Contraseña PostgreSQL |
+| `DB_HOST` / `DB_PORT` / `DB_NAME` | Render (backend) | ✅ | Enlace Blueprint | Destino PostgreSQL interno |
+| `DB_USERNAME` / `DB_PASSWORD` | Render (backend) | ✅ | Enlace Blueprint | Credenciales inyectadas por Render |
 | `DDL_AUTO` | Render (backend) | ❌ | `update` | Estrategia Hibernate (default: update) |
 | `SHOW_SQL` | Render (backend) | ❌ | `false` | Mostrar queries SQL en logs |
-| `JWT_SECRET` | Render (backend) | ✅ | `base64EncodedKey...` | Clave para firmar JWT |
+| `JWT_SECRET` | Render (backend) | ✅ | Generado por Render | Clave para firmar JWT |
 | `FRONTEND_URL` | Render (backend) | ✅ | `https://farmacia.vercel.app` | URL del frontend para CORS |
 | `ADMIN_EMAIL` | Render (backend) | ✅ | `admin@farmacia.com` | Email del admin por defecto |
-| `ADMIN_PASSWORD` | Render (backend) | ✅ | `Admin@Secure2024` | Contraseña admin (usar segura) |
+| `ADMIN_PASSWORD` | Render (backend) | ✅ | Configurar solo en Render | Contraseña admin |
 | `CREATE_DEFAULT_ADMIN` | Render (backend) | ❌ | `true` | Crear admin si no existe |
-| `GROQ_API_KEY` | Render (backend) | ❌ | `gsk_xxxx` | API Key de Groq para el chatbot |
+| `GROQ_API_KEY` | Render (backend) | ❌ | Configurar solo en Render | API Key de Groq para el chatbot |
 | `VITE_API_URL` | Vercel (frontend) | ✅ | `https://backend.onrender.com` | URL del backend para React |
 
 > ⚠️ **SEGURIDAD**: Ninguna de estas variables debe aparecer en el código fuente ni en el historial de Git.

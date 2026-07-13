@@ -21,8 +21,8 @@ import java.time.LocalDateTime;
  *
  * Variables de entorno (o properties):
  *   admin.email           = ADMIN_EMAIL (default: admin@farmacia.com)
- *   admin.password        = ADMIN_PASSWORD (default: 123456)
- *   admin.create-default  = CREATE_DEFAULT_ADMIN (default: true)
+ *   admin.password        = ADMIN_PASSWORD (obligatoria)
+ *   admin.create-default  = CREATE_DEFAULT_ADMIN (default: false)
  *
  * NOTA: En producción, cambiar las credenciales en las variables de entorno de Render.
  */
@@ -37,10 +37,10 @@ public class AdminInitializer implements CommandLineRunner {
     @Value("${admin.email:admin@farmacia.com}")
     private String adminEmail;
 
-    @Value("${admin.password:123456}")
+    @Value("${admin.password}")
     private String adminPassword;
 
-    @Value("${admin.create-default:true}")
+    @Value("${admin.create-default:false}")
     private boolean createDefaultAdmin;
 
     public AdminInitializer(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {

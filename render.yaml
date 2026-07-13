@@ -24,17 +24,27 @@ services:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
 
-      # Puerto (Render lo asigna automáticamente, Spring lo lee)
-      - key: PORT
-        generateValue: false
-
-      # Base de datos (se completan desde el servicio de BD abajo)
-      - key: DB_URL
-        sync: false  # ⚠️ Ingresar manualmente: jdbc:postgresql://HOST:PORT/DB?sslmode=require
+      # Base de datos (Render enlaza el PostgreSQL sin publicar credenciales)
+      - key: DB_HOST
+        fromDatabase:
+          name: farmacia-maria-rosa-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: farmacia-maria-rosa-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: farmacia-maria-rosa-db
+          property: database
       - key: DB_USERNAME
-        sync: false  # ⚠️ Ingresar manualmente
+        fromDatabase:
+          name: farmacia-maria-rosa-db
+          property: user
       - key: DB_PASSWORD
-        sync: false  # ⚠️ Ingresar manualmente (marcar como secreto en Render)
+        fromDatabase:
+          name: farmacia-maria-rosa-db
+          property: password
 
       # Hibernate
       - key: DDL_AUTO
@@ -44,7 +54,7 @@ services:
 
       # JWT (generar con: openssl rand -base64 64)
       - key: JWT_SECRET
-        sync: false  # ⚠️ Ingresar manualmente (marcar como secreto en Render)
+        generateValue: true
 
       # CORS - URL del frontend desplegado
       - key: FRONTEND_URL
@@ -68,3 +78,4 @@ databases:
     plan: free
     databaseName: farmacia_maria_rosa
     user: farmacia_admin
+    ipAllowList: []

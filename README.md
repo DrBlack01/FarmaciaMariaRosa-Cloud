@@ -144,17 +144,9 @@ El `config.js` detecta automáticamente si está en localhost o producción.
 
 ## 🔑 Usuario administrador
 
-Al iniciar el backend por primera vez, se crea automáticamente:
-
-| Campo | Valor por defecto |
-|---|---|
-| Email | `admin@farmacia.com` |
-| Contraseña | `123456` (⚠️ cambiar en producción) |
-| Rol | `ADMIN` |
-| Estado | Activo |
-
-El administrador **no se duplica** si ya existe en la base de datos.
-Configurar las variables `ADMIN_EMAIL`, `ADMIN_PASSWORD` y `CREATE_DEFAULT_ADMIN` para personalizar.
+La creación automática del administrador está deshabilitada por defecto. Para habilitarla,
+configura `ADMIN_EMAIL`, `ADMIN_PASSWORD` y `CREATE_DEFAULT_ADMIN=true` únicamente como
+variables de entorno. El administrador **no se duplica** si ya existe en la base de datos.
 
 ---
 
@@ -170,9 +162,8 @@ cp springboot/demo/.env.example springboot/demo/.env
 Ver tabla completa en [DEPLOYMENT.md](DEPLOYMENT.md).
 
 Variables mínimas requeridas:
-- `DB_URL` - URL JDBC de PostgreSQL con `?sslmode=require`
-- `DB_USERNAME` / `DB_PASSWORD` - Credenciales de Render
-- `JWT_SECRET` - Clave aleatoria BASE64 de 64+ caracteres
+- `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME` y `DB_PASSWORD` - enlazadas automáticamente por el Blueprint
+- `JWT_SECRET` - generada automáticamente por Render
 - `FRONTEND_URL` - URL del frontend para CORS
 - `ADMIN_EMAIL` / `ADMIN_PASSWORD` - Credenciales del admin
 
