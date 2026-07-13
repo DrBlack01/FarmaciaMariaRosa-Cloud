@@ -2,8 +2,12 @@ import { API_BASE } from "../../../config/api";
 
 
 const fetchOptions = {
-  headers: {
-    "Content-Type": "application/json",
+  get headers() {
+    const token = localStorage.getItem("jwtToken");
+    return {
+      "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
+    };
   },
 };
 

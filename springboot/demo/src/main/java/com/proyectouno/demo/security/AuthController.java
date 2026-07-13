@@ -9,9 +9,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = {"http://localhost:5500", "http://127.0.0.1:5500"})
 public class AuthController {
 
     @Autowired
@@ -28,33 +29,58 @@ public class AuthController {
 
     // ============= REGISTRO (opcional si ya tienes POST /clientes) =============
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody Usuario usuario) {
-        if (usuarioRepository.findByEmail(usuario.getEmail()).isPresent()) {
+    public ResponseEntity<?> register(@RequestBody Map<String, String> request) {
+        String nombre = request.get("nombre");
+        String email = request.get("email");
+        String password = request.get("password");
+
+        if (nombre == null || nombre.isBlank() || email == null || email.isBlank()
+                || password == null || password.isBlank()) {
+            return ResponseEntity.badRequest().body("Nombre, correo y contraseña son obligatorios");
+        }
+
+        if (password.length() < 8) {
+            return ResponseEntity.badRequest().body("La contraseña debe tener al menos 8 caracteres");
+        }
+
+        String normalizedEmail = email.trim().toLowerCase();
+        if (usuarioRepository.findByEmail(normalizedEmail).isPresent()) {
             return ResponseEntity.badRequest().body("El correo ya está registrado");
         }
 
-         usuario.setRol("CLIENTE");
+        Usuario usuario = new Usuario();
+        usuario.setNombre(nombre.trim());
+        usuario.setEmail(normalizedEmail);
+        usuario.setRol("CLIENTE");
+        usuario.setEstado(true);
 
-        usuario.setPasswordHash(passwordEncoder.encode(usuario.getPasswordHash()));
+        usuario.setPasswordHash(passwordEncoder.encode(password));
         usuarioRepository.save(usuario);
         return ResponseEntity.ok("Usuario registrado correctamente");
     }
 
     // ============= LOGIN =============
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Usuario loginRequest) {
+    public ResponseEntity<?> login(@RequestBody Map<String, String> request) {
         try {
+            String email = request.get("email");
+            String password = request.get("password");
+
+            if (email == null || password == null) {
+                return ResponseEntity.status(401).body("Credenciales inválidas");
+            }
+
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            loginRequest.getEmail(), loginRequest.getPasswordHash()
+                            email.trim().toLowerCase(), password
                     )
             );
 
-            Usuario user = usuarioRepository.findByEmail(loginRequest.getEmail())
+            Usuario user = usuarioRepository.findByEmail(email.trim().toLowerCase())
                     .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
             String token = jwtUtil.generateToken(user.getEmail(), user.getRol());
-            return ResponseEntity.ok().body(java.util.Map.of(
+            return ResponseEntity.ok().body(Map.of(
                     "token", token,
                     "rol", user.getRol(),
                     "email", user.getEmail()

@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { DarkModeProvider } from "./contexts/DarkModeContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import Navbar from "./components/Navbar";
@@ -10,6 +10,12 @@ import Productos from "./pages/Productos";
 import Contacto from "./pages/Contacto";
 import Perfil from "./pages/Perfil";
 import Admin from "./pages/admin/Admin";
+import { useAuth } from "./hooks/useAuth";
+
+const AdminRoute = () => {
+  const { user } = useAuth();
+  return user?.role === "admin" ? <Admin /> : <Navigate to="/" replace />;
+};
 
 function App() {
   return (
@@ -23,7 +29,7 @@ function App() {
             <Route path="/pages/contacto" element={<Contacto />} />
             <Route path="/pages/perfil" element={<Perfil />} />
 
-            <Route path="/admin" element={<Admin />} />
+            <Route path="/admin" element={<AdminRoute />} />
           </Routes>
           <Footer />
           <WhatsAppButton />

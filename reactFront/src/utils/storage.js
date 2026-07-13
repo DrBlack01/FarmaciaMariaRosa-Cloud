@@ -1,31 +1,3 @@
-// Obtener usuarios registrados
-export const getUsers = () => {
-  return JSON.parse(localStorage.getItem("users") || "[]");
-};
-
-// Guardar nuevo usuario
-export const saveUser = (email, password) => {
-  const users = getUsers();
-  users.push({ email, password, role: "user" });
-  localStorage.setItem("users", JSON.stringify(users));
-};
-
-// Buscar usuario por email y password
-export const findUser = (email, password) => {
-  if (email === "admin@farmacia.com" && password === "123456") {
-    return { email, role: "admin" };
-  }
-  return getUsers().find(u => u.email === email && u.password === password);
-};
-
-// Verificar si email existe
-export const userExists = (email) => {
-  return (
-    email === "admin@farmacia.com" ||
-    getUsers().some(u => u.email === email)
-  );
-};
-
 // Manejo de sesión
 export const setLoggedInUser = (user) => {
   localStorage.setItem("loggedInUser", JSON.stringify(user));

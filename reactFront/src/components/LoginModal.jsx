@@ -11,11 +11,11 @@ const LoginModal = () => {
   const [registerError, setRegisterError] = useState('');
   const [registerSuccess, setRegisterSuccess] = useState('');
 
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setLoginError('');
 
-    const result = login(loginData.email, loginData.password);
+    const result = await login(loginData.email, loginData.password);
     if (result.success) {
       const modal = window.bootstrap.Modal.getInstance(document.getElementById('loginModal'));
       if (modal) modal.hide();
@@ -30,12 +30,12 @@ const LoginModal = () => {
     }
   };
 
-  const handleRegisterSubmit = (e) => {
+  const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     setRegisterError('');
     setRegisterSuccess('');
 
-    const result = register(registerData.email, registerData.password, registerData.password2);
+    const result = await register(registerData.email, registerData.password, registerData.password2);
     if (result.success) {
       setRegisterSuccess('¡Registro exitoso! Ahora puedes iniciar sesión.');
       setRegisterData({ email: '', password: '', password2: '' });

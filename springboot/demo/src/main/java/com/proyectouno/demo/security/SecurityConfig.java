@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -50,12 +51,16 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                     // Rutas públicas sin JWT
                     .requestMatchers("/api/auth/**").permitAll()
-                    .requestMatchers("/api/productos/**").permitAll()
-                    .requestMatchers("/api/categorias/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/categorias/**").permitAll()
                     .requestMatchers("/api/chat-ai/**").permitAll()
                     .requestMatchers("/api/clientes/**").permitAll()
                     .requestMatchers("/api/contacto/**").permitAll()
                     .requestMatchers("/api/health").permitAll()
+
+                    // Solo ADMIN puede modificar el catálogo
+                    .requestMatchers("/api/productos/**").hasAuthority("ADMIN")
+                    .requestMatchers("/api/categorias/**").hasAuthority("ADMIN")
 
                     // Solo ADMIN accede a estadísticas
                     .requestMatchers("/api/estadisticas/**").hasAuthority("ADMIN")
