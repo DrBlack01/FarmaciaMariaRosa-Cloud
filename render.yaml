@@ -68,6 +68,10 @@ services:
       - key: CREATE_DEFAULT_ADMIN
         value: "true"
 
+      # Carga inicial idempotente para una base de datos vacía
+      - key: SEED_DEMO_DATA
+        value: "true"
+
       # Chatbot Groq (opcional)
       - key: GROQ_API_KEY
         sync: false  # ⚠️ Ingresar manualmente si se usa el chatbot
