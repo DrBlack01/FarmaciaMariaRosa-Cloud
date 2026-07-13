@@ -3,7 +3,7 @@ import ClienteModal from "./ClienteModal";
 import {
   obtenerClientes,
   actualizarCliente,
-} from "../services/adminService";
+} from "../services/AdminService";
 
 const AdminClientes = () => {
   const [clientes, setClientes] = useState([]);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import MensajeModal from "./MensajeModal";
-import { obtenerMensajes } from "../services/adminService";
+import { obtenerMensajes } from "../services/AdminService";
 
 const AdminMensajes = () => {
   const [mensajes, setMensajes] = useState([]);

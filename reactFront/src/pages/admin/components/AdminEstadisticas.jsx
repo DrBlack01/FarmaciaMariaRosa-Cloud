@@ -17,7 +17,7 @@ import {
   obtenerProductos,
   obtenerReservas,
   obtenerClientes,
-} from "../services/adminService";
+} from "../services/AdminService";
 
 ChartJS.register(
   CategoryScale,

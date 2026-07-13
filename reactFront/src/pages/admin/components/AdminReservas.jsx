@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ReservaModal from "./ReservaModal";
-import { obtenerReservas, actualizarReserva } from "../services/adminService";
+import { obtenerReservas, actualizarReserva } from "../services/AdminService";
 
 const AdminReservas = () => {
   const [reservas, setReservas] = useState([]);

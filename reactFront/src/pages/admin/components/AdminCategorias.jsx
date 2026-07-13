@@ -5,7 +5,7 @@ import {
   crearCategoria,
   actualizarCategoria,
   eliminarCategoria,
-} from "../services/adminService";
+} from "../services/AdminService";
 
 const AdminCategorias = () => {
   const [categorias, setCategorias] = useState([]);

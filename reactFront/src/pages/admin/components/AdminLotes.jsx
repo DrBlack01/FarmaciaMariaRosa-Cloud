@@ -6,7 +6,7 @@ import {
   crearLote,
   actualizarLote,
   eliminarLote,
-} from "../services/adminService";
+} from "../services/AdminService";
 
 const AdminLotes = () => {
   const [lotes, setLotes] = useState([]);

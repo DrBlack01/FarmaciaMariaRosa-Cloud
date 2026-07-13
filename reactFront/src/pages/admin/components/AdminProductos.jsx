@@ -6,7 +6,7 @@ import {
   actualizarProducto,
   eliminarProducto,
   obtenerCategorias,
-} from "../services/adminService";
+} from "../services/AdminService";
 
 const AdminProductos = () => {
   const [productos, setProductos] = useState([]);
