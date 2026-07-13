@@ -193,7 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Carga categorías desde /api/categorias
   async function cargarCategorias() {
     try {
-      const response = await fetch('http://localhost:8081/api/categorias');
+      const response = await fetch((window.API_BASE_URL || 'http://localhost:8081') + '/api/categorias');
       if (!response.ok) {
         throw new Error(`Error ${response.status}: ${response.statusText}`);
       }
@@ -210,7 +210,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Carga productos desde el backend (funciona con tu wrapper actual)
 async function cargarProductos() {
   try {
-    const response = await fetch('http://localhost:8081/api/productos');
+    const response = await fetch((window.API_BASE_URL || 'http://localhost:8081') + '/api/productos');
     if (!response.ok) {
       throw new Error(`Error ${response.status}: ${response.statusText}`);
     }

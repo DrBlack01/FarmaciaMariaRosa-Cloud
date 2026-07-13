@@ -1,6 +1,6 @@
 // Variables globales
-const API_URL = "http://localhost:8081/api/lotes";
-const API_PRODUCTOS = "http://localhost:8081/api/productos";
+const API_URL = (window.API_BASE_URL || "http://localhost:8081") + "/api/lotes";
+const API_PRODUCTOS = (window.API_BASE_URL || "http://localhost:8081") + "/api/productos";
 let lotesData = [];
 let currentLoteId = null;
 let loteModal = null;

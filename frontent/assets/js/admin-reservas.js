@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       console.log('📦 Cargando reservas desde: http://127.0.0.1:8081/api/reservas');
       
-      const response = await fetch("http://127.0.0.1:8081/api/reservas", {
+      const response = await fetch((window.API_BASE_URL || "http://127.0.0.1:8081") + "/api/reservas", {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
             let cliente = reserva.cliente;
             if (!cliente && reserva.idCliente) {
               const clienteResponse = await fetch(
-                `http://127.0.0.1:8081/api/clientes/${reserva.idCliente}`,
+                `${window.API_BASE_URL || "http://127.0.0.1:8081"}/api/clientes/${reserva.idCliente}`,
                 {
                   headers: {
                     'Authorization': `Bearer ${token}` // ✅ TOKEN REAL
@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 let producto = detalle.producto;
                 if (!producto && detalle.idProducto) {
                   const productoResponse = await fetch(
-                    `http://127.0.0.1:8081/api/productos/${detalle.idProducto}`,
+                    `${window.API_BASE_URL || "http://127.0.0.1:8081"}/api/productos/${detalle.idProducto}`,
                     {
                       headers: {
                         'Authorization': `Bearer ${token}` // ✅ TOKEN REAL
@@ -329,7 +329,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("Payload enviado:", payload);
 
       const response = await fetch(
-        `http://127.0.0.1:8081/api/reservas/${reservaActual.idReserva}`,
+        `${window.API_BASE_URL || "http://127.0.0.1:8081"}/api/reservas/${reservaActual.idReserva}`,
         {
           method: "PUT",
           headers: {
@@ -397,7 +397,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("Payload para cancelar:", payload);
 
       const response = await fetch(
-        `http://127.0.0.1:8081/api/reservas/${reservaActual.idReserva}`,
+        `${window.API_BASE_URL || "http://127.0.0.1:8081"}/api/reservas/${reservaActual.idReserva}`,
         {
           method: "PUT",
           headers: {

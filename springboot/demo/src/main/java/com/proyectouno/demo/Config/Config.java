@@ -1,54 +1,54 @@
 package com.proyectouno.demo.Config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
-
+import java.util.List;
 
 /**
- * Configuración de CORS para permitir que el frontend
- * (localhost:5500) acceda a las APIs del backend.
+ * Configuración de CORS para el frontend.
+ * Los orígenes permitidos se leen desde application properties:
+ *   - Desarrollo: application-dev.properties -> cors.allowed-origins
+ *   - Producción: variable de entorno FRONTEND_URL en Render
  */
-
 @Configuration
 public class Config {
-    /**
-     * Bean que devuelve un WebMvcConfigurer personalizado para configurar CORS.
-     * 
-     * @return WebMvcConfigurer con reglas de CORS definidas
-     */
+
+    @Value("${cors.allowed-origins:http://localhost:5500,http://127.0.0.1:5500,http://localhost:5173,http://localhost:3000}")
+    private String allowedOriginsRaw;
+
+    private List<String> getAllowedOrigins() {
+        return Arrays.stream(allowedOriginsRaw.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toList();
+    }
+
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
-            /**
-             * Configura CORS para todas las rutas /api.
-             * Permite solicitudes GET, POST, PUT, DELETE y OPTIONS
-             * desde localhost:5500 con cualquier header y cookies.
-             * 
-             * @param registry Objeto para registrar las rutas CORS.
-             */
-
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**") // aplica a todas las rutas bajo /api
-                        .allowedOrigins("http://127.0.0.1:5500", "http://localhost:5500", " http://localhost:5173/", " http://127.0.0.1:5173/") // frontend permitido
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // métodos permitidos
-                        .allowedHeaders("*") // cualquier header
-                        .allowCredentials(true); // permite cookies
+                registry.addMapping("/**")
+                        .allowedOrigins(getAllowedOrigins().toArray(new String[0]))
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
+                        .allowedHeaders("*")
+                        .allowCredentials(true);
             }
         };
     }
-    // Configuración adicional para Spring Security si la usas
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://127.0.0.1:5500", "http://localhost:5500", " http://localhost:5173/", " http://127.0.0.1:5173/"));
+        configuration.setAllowedOrigins(getAllowedOrigins());
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);

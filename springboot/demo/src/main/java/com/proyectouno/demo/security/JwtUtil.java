@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -17,9 +18,14 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
-    // 👇 IMPORTANTE: esta clave debe ser BASE64 válida y de 256 bits (32 bytes).
-    // Puedes generar una nueva con: Base64.getEncoder().encodeToString("mi_clave_super_segura_1234567890123456".getBytes());
-    private static final String SECRET_KEY = "bWlfY2xhdmVfc3VwZXJfc2VndXJhXzEyMzQ1Njc4OTAxMjM0NTY2";
+    /**
+     * Clave secreta para firmar los JWT.
+     * Se inyecta desde application-dev.properties (jwt.secret) o
+     * desde la variable de entorno JWT_SECRET en producción.
+     * Debe ser un valor BASE64 válido de al menos 256 bits.
+     */
+    @Value("${jwt.secret}")
+    private String secretKey;
 
     // ======= Extraer información del token =======
     public String extractUsername(String token) {
@@ -39,23 +45,23 @@ public class JwtUtil {
                 .getBody();
     }
 
-     // ======= Extraer rol del token =======
+    // ======= Extraer rol del token =======
     public String extractRole(String token) {
         return extractClaim(token, claims -> claims.get("rol", String.class));
     }
 
     private Key getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    // ======= Generar token con UserDetails (versión antigua) =======
+    // ======= Generar token con UserDetails =======
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         return createToken(claims, userDetails.getUsername());
     }
 
-    // ======= Nueva versión: token con email y rol =======
+    // ======= Generar token con email y rol =======
     public String generateToken(String email, String rol) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("rol", rol);
@@ -67,7 +73,7 @@ public class JwtUtil {
                 .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hora
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24 horas
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

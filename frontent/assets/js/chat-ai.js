@@ -94,7 +94,7 @@ class ChatAI {
     }
 
     async callChatAPI(message) {
-        const response = await fetch('http://127.0.0.1:8081/api/chat-ai', {
+        const response = await fetch((window.API_BASE_URL || 'http://127.0.0.1:8081') + '/api/chat-ai', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

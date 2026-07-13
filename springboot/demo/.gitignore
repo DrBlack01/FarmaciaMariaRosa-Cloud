@@ -31,6 +31,33 @@ build/
 
 ### VS Code ###
 .vscode/
-# Ignorar archivos de entorno
+
+# =============================================
+# Archivos de entorno y seguridad
+# NUNCA subir a GitHub
+# =============================================
 .env
+.env.*
 **/.env
+**/.env.*
+!**/.env.example
+
+# Claves y secretos
+*.key
+*.pem
+*.p12
+*.jks
+*.pfx
+*.cer
+*.crt
+private/
+secrets/
+
+# Logs
+*.log
+logs/
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini

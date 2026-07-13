@@ -1,4 +1,7 @@
-const API_BASE = "http://127.0.0.1:8081/api";
+// En producción (Vercel): usar VITE_API_URL configurada como variable de entorno
+// En desarrollo local: usar el proxy de Vite (/api -> localhost:8081)
+const API_BASE = (import.meta.env.VITE_API_URL || "") + "/api";
+
 
 const fetchOptions = {
   headers: {

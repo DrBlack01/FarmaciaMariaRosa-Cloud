@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       console.log('📦 === INICIANDO CARGA DE PRODUCTOS ===');
       console.log('🔐 Token que se enviará:', token.substring(0, 20) + '...');
       
-      const response = await fetch("http://127.0.0.1:8081/api/productos", {
+      const response = await fetch((window.API_BASE_URL || "http://127.0.0.1:8081") + "/api/productos", {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -386,8 +386,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     try {
       const url = id
-        ? `http://127.0.0.1:8081/api/productos/${id}`
-        : "http://127.0.0.1:8081/api/productos";
+        ? `${window.API_BASE_URL || "http://127.0.0.1:8081"}/api/productos/${id}`
+        : (window.API_BASE_URL || "http://127.0.0.1:8081") + "/api/productos";
       const method = id ? "PUT" : "POST";
 
       const response = await fetch(url, {
@@ -433,7 +433,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     try {
-      const response = await fetch(`http://127.0.0.1:8081/api/productos/${id}`, { 
+      const response = await fetch(`${window.API_BASE_URL || "http://127.0.0.1:8081"}/api/productos/${id}`, { 
         method: "DELETE",
         headers: {
           'Authorization': `Bearer ${token}`
@@ -461,7 +461,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     const select = document.getElementById("productCategory");
     select.innerHTML = `<option value="">Selecciona una categoría</option>`;
     try {
-      const response = await fetch("http://127.0.0.1:8081/api/categorias");
+      const response = await fetch((window.API_BASE_URL || "http://127.0.0.1:8081") + "/api/categorias");
       const categorias = await response.json();
       categorias.forEach((cat) => {
         const opt = document.createElement("option");

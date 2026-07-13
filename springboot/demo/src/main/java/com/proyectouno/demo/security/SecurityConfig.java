@@ -1,6 +1,7 @@
 package com.proyectouno.demo.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -12,11 +13,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableMethodSecurity
@@ -24,12 +26,20 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtFilter;
 
+    @Autowired
+    private CustomAccessDeniedHandler accessDeniedHandler;
+
+    /**
+     * Orígenes CORS permitidos.
+     * En desarrollo: configurados en application-dev.properties
+     * En producción: valor de la variable de entorno FRONTEND_URL en Render
+     */
+    @Value("${cors.allowed-origins:http://localhost:5500,http://127.0.0.1:5500,http://localhost:5173,http://localhost:3000}")
+    private String allowedOriginsRaw;
+
     public SecurityConfig(JwtAuthenticationFilter jwtFilter) {
         this.jwtFilter = jwtFilter;
     }
-    
-    @Autowired
-    private CustomAccessDeniedHandler accessDeniedHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -40,40 +50,33 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                     // Rutas públicas sin JWT
                     .requestMatchers("/api/auth/**").permitAll()
-                    
-                    .requestMatchers("/api/productos/**").permitAll() 
-                    .requestMatchers("/api/categorias/**").permitAll() 
-                    .requestMatchers("/api/chat-ai/**").permitAll() 
+                    .requestMatchers("/api/productos/**").permitAll()
+                    .requestMatchers("/api/categorias/**").permitAll()
+                    .requestMatchers("/api/chat-ai/**").permitAll()
                     .requestMatchers("/api/clientes/**").permitAll()
                     .requestMatchers("/api/contacto/**").permitAll()
-                    
+                    .requestMatchers("/api/health").permitAll()
 
                     // Solo ADMIN accede a estadísticas
-                    .requestMatchers("/api/estadisticas/**").hasAuthority("ADMIN") // ✅ CAMBIADO
+                    .requestMatchers("/api/estadisticas/**").hasAuthority("ADMIN")
 
-                    // ADMIN, CAJERO y SECRETARIO pueden ver productos, categorías, lotes y clientes
-                    .requestMatchers(
-                                     "/api/lotes/**").hasAnyAuthority("ADMIN", "CAJERO", "SECRETARIO") // ✅ CAMBIADO
-
-                    // Reservas: ADMIN y CAJERO
-                    //.requestMatchers("/api/reservas/**").hasAnyAuthority("ADMIN", "CAJERO") // ✅ CAMBIADO
+                    // ADMIN, CAJERO y SECRETARIO pueden gestionar lotes
+                    .requestMatchers("/api/lotes/**").hasAnyAuthority("ADMIN", "CAJERO", "SECRETARIO")
 
                     // Mensajes: ADMIN y SECRETARIO
-                    .requestMatchers("/api/mensajes/**").hasAnyAuthority("ADMIN", "SECRETARIO") // ✅ CAMBIADO
+                    .requestMatchers("/api/mensajes/**").hasAnyAuthority("ADMIN", "SECRETARIO")
 
-                    // CLIENTE: acceso a su perfil o reservas
-                    //.requestMatchers(
-                    //                 "/api/clientes/reservas/**").hasAuthority("CLIENTE") // ✅ CAMBIADO
+                    // Usuarios sin token (CRUD de administración de usuarios)
+                    .requestMatchers("/usuarios/**").permitAll()
 
-                    .requestMatchers("/usuarios/**").permitAll()  // CRUD usuarios sin token
-                    
                     // Todo lo demás requiere autenticación
                     .anyRequest().authenticated()
             );
+
         http.exceptionHandling(exception -> exception
                 .accessDeniedHandler(accessDeniedHandler)
         );
-        
+
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -82,7 +85,14 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSourceSecuruty() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://127.0.0.1:5500", "http://localhost:5500"));
+
+        // Parsear lista de orígenes desde la property (separados por coma)
+        List<String> origins = Arrays.stream(allowedOriginsRaw.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toList();
+        configuration.setAllowedOrigins(origins);
+
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);

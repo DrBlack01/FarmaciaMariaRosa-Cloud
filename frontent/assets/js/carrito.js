@@ -306,7 +306,7 @@ if (token) {
         const findClientIdByEmail = async (email) => {
             try {
                 console.log(`Buscando cliente por email: ${email}`);
-                const res = await fetch('http://127.0.0.1:8081/api/clientes', {
+                const res = await fetch((window.API_BASE_URL || 'http://127.0.0.1:8081') + '/api/clientes', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
@@ -331,7 +331,7 @@ if (token) {
         const findClientIdByDni = async (dni) => {
             try {
                 console.log(`Buscando cliente con DNI: ${dni}`);
-                const res = await fetch(`http://127.0.0.1:8081/api/clientes/dni/${dni}`, {
+                const res = await fetch(`${window.API_BASE_URL || 'http://127.0.0.1:8081'}/api/clientes/dni/${dni}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
@@ -339,7 +339,7 @@ if (token) {
                 });
                 if (!res.ok) {
                     console.warn(`GET /api/clientes/dni/${dni} devolvió ${res.status}, intentando fallback`);
-                    const resAll = await fetch('http://127.0.0.1:8081/api/clientes', {
+                    const resAll = await fetch((window.API_BASE_URL || 'http://127.0.0.1:8081') + '/api/clientes', {
                         headers: {
                             'Authorization': `Bearer ${token}`,
                             'Content-Type': 'application/json'
@@ -435,7 +435,7 @@ if (token) {
 
                     try {
                         console.log('Creando nuevo cliente:', clienteDTO);
-                        const res = await fetch('http://127.0.0.1:8081/api/clientes', {
+                        const res = await fetch((window.API_BASE_URL || 'http://127.0.0.1:8081') + '/api/clientes', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -516,7 +516,7 @@ if (token) {
 
             console.log('Enviando reserva:', reservaDTO);
 
-            const response = await fetch('http://127.0.0.1:8081/api/reservas', {
+            const response = await fetch((window.API_BASE_URL || 'http://127.0.0.1:8081') + '/api/reservas', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

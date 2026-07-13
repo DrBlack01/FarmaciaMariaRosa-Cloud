@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     try {
       console.log('👥 === INICIANDO CARGA DE USUARIOS ===');
       
-      const response = await fetch("http://127.0.0.1:8081/usuarios", {
+      const response = await fetch((window.API_BASE_URL || "http://127.0.0.1:8081") + "/usuarios", {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -261,8 +261,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     try {
       const url = id
-        ? `http://127.0.0.1:8081/usuarios/${id}`
-        : "http://127.0.0.1:8081/usuarios";
+        ? `${window.API_BASE_URL || "http://127.0.0.1:8081"}/usuarios/${id}`
+        : (window.API_BASE_URL || "http://127.0.0.1:8081") + "/usuarios";
       const method = id ? "PUT" : "POST";
 
       const response = await fetch(url, {
@@ -302,7 +302,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   // 7️⃣ Eliminar usuario
   async function eliminarUsuario(id) {
     try {
-      const response = await fetch(`http://127.0.0.1:8081/usuarios/${id}`, { 
+      const response = await fetch(`${window.API_BASE_URL || "http://127.0.0.1:8081"}/usuarios/${id}`, { 
         method: "DELETE",
         headers: {
           'Authorization': `Bearer ${token}`

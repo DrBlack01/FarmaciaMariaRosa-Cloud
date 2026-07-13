@@ -1,6 +1,6 @@
 // ../assets/js/admin-estadisticas.js
 document.addEventListener('DOMContentLoaded', () => {
-  const API_BASE = 'http://127.0.0.1:8081/api';
+  const API_BASE = (window.API_BASE_URL || 'http://127.0.0.1:8081') + '/api';
   const btnReload = document.getElementById('btnReloadStats');
   const lastUpdatedEl = document.getElementById('lastUpdated');
 

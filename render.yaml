@@ -1,0 +1,70 @@
+# =============================================
+# render.yaml - Farmacia María Rosa
+# Infraestructura como código para Render
+# =============================================
+# INSTRUCCIONES:
+# 1. Crear un nuevo repositorio en GitHub con el código de FarmaciaMariaRosa-Cloud
+# 2. Conectar ese repositorio a Render
+# 3. Las variables marcadas como "sync: false" deben configurarse
+#    manualmente en el panel de Render (son secretos)
+# =============================================
+
+services:
+  # ---- Backend Spring Boot ----
+  - type: web
+    name: farmacia-maria-rosa-backend
+    runtime: docker
+    # Ruta al Dockerfile relativa a la raíz del repositorio
+    dockerfilePath: ./springboot/demo/Dockerfile
+    dockerContext: ./springboot/demo
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      # Perfil de Spring Boot
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+
+      # Puerto (Render lo asigna automáticamente, Spring lo lee)
+      - key: PORT
+        generateValue: false
+
+      # Base de datos (se completan desde el servicio de BD abajo)
+      - key: DB_URL
+        sync: false  # ⚠️ Ingresar manualmente: jdbc:postgresql://HOST:PORT/DB?sslmode=require
+      - key: DB_USERNAME
+        sync: false  # ⚠️ Ingresar manualmente
+      - key: DB_PASSWORD
+        sync: false  # ⚠️ Ingresar manualmente (marcar como secreto en Render)
+
+      # Hibernate
+      - key: DDL_AUTO
+        value: update
+      - key: SHOW_SQL
+        value: "false"
+
+      # JWT (generar con: openssl rand -base64 64)
+      - key: JWT_SECRET
+        sync: false  # ⚠️ Ingresar manualmente (marcar como secreto en Render)
+
+      # CORS - URL del frontend desplegado
+      - key: FRONTEND_URL
+        sync: false  # ⚠️ Ingresar manualmente: https://farmacia-maria-rosa.vercel.app
+
+      # Administrador por defecto
+      - key: ADMIN_EMAIL
+        sync: false  # ⚠️ Ingresar manualmente
+      - key: ADMIN_PASSWORD
+        sync: false  # ⚠️ Ingresar manualmente (marcar como secreto en Render)
+      - key: CREATE_DEFAULT_ADMIN
+        value: "true"
+
+      # Chatbot Groq (opcional)
+      - key: GROQ_API_KEY
+        sync: false  # ⚠️ Ingresar manualmente si se usa el chatbot
+
+# ---- Base de datos PostgreSQL ----
+databases:
+  - name: farmacia-maria-rosa-db
+    plan: free
+    databaseName: farmacia_maria_rosa
+    user: farmacia_admin
