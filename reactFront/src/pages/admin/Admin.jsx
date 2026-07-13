@@ -12,7 +12,7 @@ import { useAuth } from "../../hooks/useAuth";
 
 
 const Admin = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("productos");
 
@@ -36,10 +36,13 @@ const Admin = () => {
           <button
             type="button"
             className="btn btn-outline-danger"
-            onClick={() => navigate("/")}
+            onClick={() => {
+              logout();
+              navigate("/", { replace: true });
+            }}
           >
             <i className="bi bi-box-arrow-left me-2"></i>
-            Salir del administrador
+            Salir del sistema
           </button>
         </div>
 
