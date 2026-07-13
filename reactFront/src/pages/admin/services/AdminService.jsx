@@ -114,7 +114,10 @@ export const obtenerProductos = async () => {
       ...fetchOptions,
     });
     if (!response.ok) throw new Error(`Error ${response.status}`);
-    return await response.json();
+    const data = await response.json();
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data.productos)) return data.productos;
+    throw new Error("Formato de productos no válido");
   } catch (error) {
     console.error("Error cargando productos:", error);
     throw error;

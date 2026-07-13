@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/lotes")
-@CrossOrigin(origins = {"http://localhost:5500", "http://127.0.0.1:5500"})
 public class LoteController {
 
     @Autowired
