@@ -55,21 +55,44 @@ public class AdminInitializer implements CommandLineRunner {
             return;
         }
 
-        if (usuarioRepository.findByEmail(adminEmail).isPresent()) {
-            logger.info("AdminInitializer: El administrador '{}' ya existe. No se duplica.", adminEmail);
+        String normalizedEmail = adminEmail.trim().toLowerCase();
+        Usuario admin = usuarioRepository.findByEmail(normalizedEmail).orElse(null);
+
+        if (admin == null) {
+            admin = new Usuario();
+            admin.setNombre("Administrador");
+            admin.setEmail(normalizedEmail);
+            admin.setPasswordHash(passwordEncoder.encode(adminPassword));
+            admin.setRol("ADMIN");
+            admin.setEstado(true);
+            admin.setFechaCreacion(LocalDateTime.now());
+
+            usuarioRepository.save(admin);
+            logger.info("AdminInitializer: Administrador '{}' creado exitosamente con rol ADMIN.", normalizedEmail);
             return;
         }
 
-        Usuario admin = new Usuario();
-        admin.setNombre("Administrador");
-        admin.setEmail(adminEmail);
-        admin.setPasswordHash(passwordEncoder.encode(adminPassword));
-        admin.setRol("ADMIN");
-        admin.setEstado(true);
-        admin.setFechaCreacion(LocalDateTime.now());
+        boolean updated = false;
+        if (!passwordEncoder.matches(adminPassword, admin.getPasswordHash())) {
+            admin.setPasswordHash(passwordEncoder.encode(adminPassword));
+            updated = true;
+        }
+        if (!"ADMIN".equals(admin.getRol())) {
+            admin.setRol("ADMIN");
+            updated = true;
+        }
+        if (!Boolean.TRUE.equals(admin.getEstado())) {
+            admin.setEstado(true);
+            updated = true;
+        }
 
-        usuarioRepository.save(admin);
-        logger.info("AdminInitializer: Administrador '{}' creado exitosamente con rol ADMIN.", adminEmail);
+        if (updated) {
+            admin.setFechaActualizacion(LocalDateTime.now());
+            usuarioRepository.save(admin);
+            logger.info("AdminInitializer: Configuración del administrador '{}' sincronizada.", normalizedEmail);
+        } else {
+            logger.info("AdminInitializer: El administrador '{}' ya está actualizado.", normalizedEmail);
+        }
         // IMPORTANTE: la contraseña NO se imprime en los logs por seguridad.
     }
 }
