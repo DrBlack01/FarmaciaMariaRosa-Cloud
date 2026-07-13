@@ -31,6 +31,18 @@ const Admin = () => {
     <>
 
       <div className="container-fluid py-4">
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h1 className="h3 mb-0">Panel de administración</h1>
+          <button
+            type="button"
+            className="btn btn-outline-danger"
+            onClick={() => navigate("/")}
+          >
+            <i className="bi bi-box-arrow-left me-2"></i>
+            Salir del administrador
+          </button>
+        </div>
+
         {/* Botón para mostrar sidebar en móvil */}
         <button
           className="btn btn-outline-danger d-lg-none mb-3"
